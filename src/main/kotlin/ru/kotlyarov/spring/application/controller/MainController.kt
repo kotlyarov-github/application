@@ -1,12 +1,14 @@
 package ru.kotlyarov.spring.application.controller
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
 import ru.kotlyarov.spring.application.domain.Message
+import ru.kotlyarov.spring.application.domain.User
 import ru.kotlyarov.spring.application.repository.MessageRepository
 
 @Controller
@@ -28,9 +30,10 @@ class MainController() {
     }
 
     @PostMapping("/main")
-    fun add(@RequestParam text: String,
+    fun add(@AuthenticationPrincipal user: User,
+            @RequestParam text: String,
             @RequestParam tag: String, map: Model): String {
-        val message = Message(text, tag)
+        val message = Message(text, tag, user)
         messageRepository.save(message)
         val messages = messageRepository.findAll()
         map.addAttribute("messages", messages)
