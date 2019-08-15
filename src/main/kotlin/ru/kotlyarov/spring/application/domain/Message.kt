@@ -14,7 +14,7 @@ data class Message(
     @GeneratedValue(strategy = GenerationType.AUTO)
     private var id: Int = 0
 
-    fun getAutorName(): String {
+    fun getAuthorName(): String {
         return if (user == null) {
             "<none>"
         } else {

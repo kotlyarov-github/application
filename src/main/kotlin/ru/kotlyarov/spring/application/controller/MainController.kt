@@ -23,21 +23,29 @@ class MainController() {
     }
 
     @GetMapping("/main")
-    fun main(map: Model): String {
-        val message = messageRepository.findAll()
+    fun main(@RequestParam(required = false, defaultValue = "") filter: String?, map: Model): String {
+        var message = messageRepository.findAll()
+
+        if (filter.isNullOrEmpty()) {
+            message = messageRepository.findAll()
+        } else {
+            message = messageRepository.findByTag(tag = filter!!)
+        }
         map.addAttribute("messages", message)
+        map.addAttribute("filter", filter)
         return "main"
     }
 
     @PostMapping("/main")
     fun add(@AuthenticationPrincipal user: User,
+            @RequestParam(required = false, defaultValue = "") filter: String?,
             @RequestParam text: String,
             @RequestParam tag: String, map: Model): String {
         val message = Message(text, tag, user)
         messageRepository.save(message)
         val messages = messageRepository.findAll()
         map.addAttribute("messages", messages)
-        //map.put("messages", message)
+        map.addAttribute("filter", filter)
         return "main"
     }
 
