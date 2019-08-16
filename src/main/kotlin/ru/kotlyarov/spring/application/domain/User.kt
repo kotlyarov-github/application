@@ -8,10 +8,14 @@ import javax.persistence.*
 @Table(name = "usr")
 class User(private var username: String?,
            private var password: String?,
-           var active: Boolean = true,
+           private var active: Boolean = true,
            @Id
                 @GeneratedValue(strategy = GenerationType.AUTO)
            var id: Long = 0) : UserDetails {
+
+    fun setUsername(username: String) {
+        this.username = username
+    }
 
     override fun getAuthorities(): MutableSet<Role?>? {
         return roles
