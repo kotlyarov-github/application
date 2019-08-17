@@ -2,7 +2,7 @@
 <#import "part/login.ftl" as l>
 
 <@c.page>
-<@l.login "/login" />
+    <@l.login "/login"/>
 Login
 <a href="/registration">Registration</a>
 </@c.page>

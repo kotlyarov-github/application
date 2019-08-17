@@ -39,7 +39,7 @@ class UserController {
 
         user.roles!!.clear()
 
-        form.forEach { (k, v) ->
+        form.forEach { (k, _) ->
             if (roles.contains(k)) {
                 user.roles!!.add(Role.valueOf(k))
             }

@@ -13,6 +13,23 @@ data class Message(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private var id: Int = 0
+    private var filename: String? = null
+
+    fun setId(id: Int) {
+        this.id = id
+    }
+
+    fun getId(): Int {
+        return id
+    }
+
+    fun setFilename(filename: String) {
+        this.filename = filename
+    }
+
+    fun getFilename(): String? {
+        return filename
+    }
 
     fun getAuthorName(): String {
         return if (user == null) {
