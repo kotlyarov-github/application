@@ -13,6 +13,10 @@ class User(private var username: String?,
                 @GeneratedValue(strategy = GenerationType.AUTO)
            var id: Long = 0) : UserDetails {
 
+    fun isAdmin(): Boolean {
+        return roles!!.contains(Role.ADMIN)
+    }
+
     fun setUsername(username: String) {
         this.username = username
     }
