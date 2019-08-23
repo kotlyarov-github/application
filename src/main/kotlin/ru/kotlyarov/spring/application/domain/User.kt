@@ -10,8 +10,33 @@ class User(private var username: String?,
            private var password: String?,
            private var active: Boolean = true,
            @Id
-                @GeneratedValue(strategy = GenerationType.AUTO)
+           @GeneratedValue(strategy = GenerationType.AUTO)
            var id: Long = 0) : UserDetails {
+
+    private var email: String? = null
+
+    fun getEmail(): String? {
+        return email
+    }
+
+    fun setEmail(value: String) {
+        email = value
+    }
+
+    private var activationCode: String? = null
+
+    fun getActivationCod(): String? {
+        return activationCode
+    }
+
+    fun setActivationCod(value: String?) {
+        activationCode = value
+    }
+
+    fun isUseActivateCode(): Boolean {
+        return activationCode.isNullOrEmpty()
+    }
+
 
     fun isAdmin(): Boolean {
         return roles!!.contains(Role.ADMIN)

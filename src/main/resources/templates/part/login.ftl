@@ -14,6 +14,14 @@
                 <input type="password" class="form-control" name="password" placeholder="Password"/>
             </div>
         </div>
+        <#if isRegisterForm>
+            <div class="from-group row">
+                <label class="col-sm-2 col-form-label">Email</label>
+                <div class="col-sm-5">
+                    <input type="email" class="form-control" name="email" placeholder="some@some.com"/>
+                </div>
+            </div>
+        </#if>
         <#if !isRegisterForm>
             <a href="/registration">Registration</a>
         </#if>

@@ -3,5 +3,5 @@
 
 
 <@c.page>
-    <@e.edit "edit" true />
+    <@e.edit "delete" false />
 </@c.page>

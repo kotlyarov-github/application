@@ -5,6 +5,7 @@ import ru.kotlyarov.spring.application.domain.User
 
 interface UserRepository : JpaRepository<User, Long> {
     fun findByUsername(username: String): User?
-//    fun <User, Long> CrudRepository<User, Long>.findByUsername(username: String): User? = findByUsername(username)
+    fun findByActivationCode(code: String): User?
+    fun findByEmail(email: String): User?
 }
 

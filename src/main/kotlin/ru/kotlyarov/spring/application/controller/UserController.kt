@@ -29,7 +29,23 @@ class UserController {
         return "userEdit"
     }
 
-    @PostMapping
+    @GetMapping("/delete/{user}")
+    fun userDeleteForm(@PathVariable user: User, map: Model): String {
+        map.addAttribute("user", user)
+        map.addAttribute("roles", Role.values())
+        //    map.addAttribute("users", userRepository.findAll())
+        return "userDelete"
+    }
+
+    @PostMapping("/delete/delete")
+    fun userDelete(
+            @RequestParam form: Map<String, String>,
+            @RequestParam("userId") user: User): String {
+        userRepository.delete(user)
+        return "redirect:/user"
+    }
+
+    @PostMapping("/edit")
     fun userSave(
             @RequestParam username: String,
             @RequestParam form: Map<String, String>,
