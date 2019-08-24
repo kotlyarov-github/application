@@ -13,6 +13,10 @@ class User(private var username: String?,
            @GeneratedValue(strategy = GenerationType.AUTO)
            var id: Long = 0) : UserDetails {
 
+    fun setPassword(value: String) {
+        password = value
+    }
+
     private var email: String? = null
 
     fun getEmail(): String? {

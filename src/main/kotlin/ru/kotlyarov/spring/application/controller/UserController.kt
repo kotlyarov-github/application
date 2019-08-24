@@ -2,26 +2,28 @@ package ru.kotlyarov.spring.application.controller
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.*
 import ru.kotlyarov.spring.application.domain.Role
 import ru.kotlyarov.spring.application.domain.User
-import ru.kotlyarov.spring.application.repository.UserRepository
+import ru.kotlyarov.spring.application.service.UserService
 
 @Controller
 @RequestMapping("/user")
-@PreAuthorize("hasAuthority('ADMIN')")
 class UserController {
     @Autowired
-    lateinit var userRepository: UserRepository
+    lateinit var userService: UserService
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping
     fun userList(model: Model): String {
-        model.addAttribute("users", userRepository.findAll())
+        model.addAttribute("users", userService.findAll())
         return "userList"
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("{user}")
     fun userEditForm(@PathVariable user: User, map: Model): String {
         map.addAttribute("user", user)
@@ -29,6 +31,7 @@ class UserController {
         return "userEdit"
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/delete/{user}")
     fun userDeleteForm(@PathVariable user: User, map: Model): String {
         map.addAttribute("user", user)
@@ -37,30 +40,39 @@ class UserController {
         return "userDelete"
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/delete/delete")
     fun userDelete(
             @RequestParam form: Map<String, String>,
             @RequestParam("userId") user: User): String {
-        userRepository.delete(user)
+        userService.delete(user)
         return "redirect:/user"
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/edit")
     fun userSave(
             @RequestParam username: String,
             @RequestParam form: Map<String, String>,
             @RequestParam("userId") user: User): String {
-        user.username = username
-        val roles = Role.values().map { it.name }.toSet()
-
-        user.roles!!.clear()
-
-        form.forEach { (k, _) ->
-            if (roles.contains(k)) {
-                user.roles!!.add(Role.valueOf(k))
-            }
-        }
-        userRepository.save(user)
+        userService.saveUser(user, username, form)
         return "redirect:/user"
+    }
+
+    @GetMapping("profile")
+    fun getProfile(model: Model, @AuthenticationPrincipal user: User): String {
+        model.addAttribute("username", user.username)
+        model.addAttribute("email", user.getEmail())
+        return "profile"
+    }
+
+    @PostMapping("profile")
+    fun updateProfile(
+            @AuthenticationPrincipal user: User,
+            @RequestParam password: String,
+            @RequestParam email: String?
+    ): String {
+        userService.updateProfile(user, password, email)
+        return "redirect:/user/profile"
     }
 }

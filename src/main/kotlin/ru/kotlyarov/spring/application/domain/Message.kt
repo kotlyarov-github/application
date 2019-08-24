@@ -12,14 +12,14 @@ data class Message(
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private var id: Int = 0
+    private var id: Long = 0
     private var filename: String? = null
 
-    fun setId(id: Int) {
+    fun setId(id: Long) {
         this.id = id
     }
 
-    fun getId(): Int {
+    fun getId(): Long {
         return id
     }
 
