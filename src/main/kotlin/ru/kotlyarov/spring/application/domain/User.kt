@@ -2,21 +2,32 @@ package ru.kotlyarov.spring.application.domain
 
 import org.springframework.security.core.userdetails.UserDetails
 import javax.persistence.*
+import javax.validation.constraints.Email
+import javax.validation.constraints.NotBlank
 
 
 @Entity
 @Table(name = "usr")
-class User(private var username: String?,
-           private var password: String?,
-           private var active: Boolean = true,
-           @Id
-           @GeneratedValue(strategy = GenerationType.AUTO)
-           var id: Long = 0) : UserDetails {
+class User(
+        @field:NotBlank(message = "Username cannot be empty")
+        private var username: String?,
+        @field:NotBlank(message = "Password cannot be empty")
+        private var password: String?,
+        private var active: Boolean = true,
+        @Id
+        @GeneratedValue(strategy = GenerationType.AUTO)
+        var id: Long = 0) : UserDetails {
 
     fun setPassword(value: String) {
         password = value
     }
 
+    @Transient
+    @NotBlank(message = "Password confirmation cannot be empty")
+    private var password2: String? = null
+
+    @Email(message = "Email is not correct")
+    @NotBlank(message = "Email cannot be empty")
     private var email: String? = null
 
     fun getEmail(): String? {
@@ -54,8 +65,8 @@ class User(private var username: String?,
         return roles
     }
 
-    override fun getPassword(): String {
-        return password!!
+    override fun getPassword(): String? {
+        return password
     }
 
     override fun isEnabled(): Boolean {
@@ -76,6 +87,14 @@ class User(private var username: String?,
 
     override fun isAccountNonLocked(): Boolean {
         return true
+    }
+
+    fun getPassword2(): String? {
+        return password2
+    }
+
+    fun setPassword2(value: String) {
+        password2 = value
     }
 
     @ElementCollection(targetClass = Role::class, fetch = FetchType.EAGER)

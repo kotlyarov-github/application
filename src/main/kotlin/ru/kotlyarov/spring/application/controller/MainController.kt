@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
+import org.springframework.validation.BindingResult
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -14,6 +15,7 @@ import ru.kotlyarov.spring.application.domain.User
 import ru.kotlyarov.spring.application.repository.MessageRepository
 import java.io.File
 import java.util.*
+import javax.validation.Valid
 
 @Controller
 class MainController() {
@@ -45,27 +47,38 @@ class MainController() {
 
     @PostMapping("/main")
     fun add(@AuthenticationPrincipal user: User,
-            @RequestParam text: String,
-            @RequestParam tag: String, map: Model,
+            @Valid message: Message,
+            bindingResult: BindingResult,
+            map: Model,
             @RequestParam("file") file: MultipartFile): String {
-        val message = Message(text, tag, user)
 
-        if (file.originalFilename!!.isNotEmpty()) {
-            val uploadDir = File(uploadPath)
-            if (!uploadDir.exists()) {
-                uploadDir.mkdir()
+        message.user = user
+
+        if (bindingResult.hasErrors()) {
+            val errorMap = ControllerUtils.getErrors(bindingResult)
+            map.mergeAttributes(errorMap)
+            map.addAttribute("message", message)
+        } else {
+            if (file.originalFilename!!.isNotEmpty()) {
+                val uploadDir = File(uploadPath)
+                if (!uploadDir.exists()) {
+                    uploadDir.mkdir()
+                }
+                val uuidName = UUID.randomUUID().toString()
+                val filename = "${uuidName}_${file.originalFilename}"
+                file.transferTo(File("/$uploadDir/$filename"))
+                message.setFilename(filename)
             }
-            val uuidName = UUID.randomUUID().toString()
-            val filename = "${uuidName}_${file.originalFilename}"
-            file.transferTo(File("/$uploadDir/$filename"))
-            message.setFilename(filename)
+            messageRepository.save(message)
         }
-        messageRepository.save(message)
-        val messages = messageRepository.findAll()
 
+        map.addAttribute("message", null)
+
+        val messages = messageRepository.findAll()
         map.addAttribute("messages", messages)
         return "main"
     }
+
 
     @PostMapping("/filter")
     fun find(@RequestParam filter: String, map: Model): String {

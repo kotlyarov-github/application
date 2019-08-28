@@ -3,11 +3,13 @@ package ru.kotlyarov.spring.application.controller
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
+import org.springframework.validation.BindingResult
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import ru.kotlyarov.spring.application.domain.User
 import ru.kotlyarov.spring.application.service.UserService
+import javax.validation.Valid
 
 @Controller
 class RegistrationController() {
@@ -21,9 +23,19 @@ class RegistrationController() {
     }
 
     @PostMapping("/registration")
-    fun addUser(user: User, map: Model): String {
+    fun addUser(@Valid user: User, bindingResult: BindingResult, map: Model): String {
+        if (user.password != null && user.password != user.getPassword2()) {
+            map.addAttribute("passwordError", "Passwords are different")
+        }
+
+        if (bindingResult.hasErrors()) {
+            val errors = ControllerUtils.getErrors(bindingResult)
+            map.mergeAttributes(errors)
+            return "registration"
+        }
+
         if (!userService.addUser(user)) {
-            map.addAttribute("message", "User exist or email taken")
+            map.addAttribute("usernameError", "User exist or email taken")
             return "registration"
         }
         return "redirect:/login"

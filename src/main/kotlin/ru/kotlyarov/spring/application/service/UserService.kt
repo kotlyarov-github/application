@@ -2,6 +2,8 @@ package ru.kotlyarov.spring.application.service
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.core.userdetails.UsernameNotFoundException
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import ru.kotlyarov.spring.application.domain.Role
 import ru.kotlyarov.spring.application.domain.User
@@ -16,8 +18,11 @@ class UserService : UserDetailsService {
     @Autowired
     private lateinit var mailSender: MailSender
 
+    @Autowired
+    private lateinit var passwordEncoder: PasswordEncoder
+
     override fun loadUserByUsername(name: String): User? {
-        return userRepository.findByUsername(name)
+        return userRepository.findByUsername(name) ?: throw UsernameNotFoundException("User not found")
     }
 
     fun addUser(user: User): Boolean {
@@ -39,6 +44,7 @@ class UserService : UserDetailsService {
 
         user.roles = Collections.singleton(Role.USER)
         user.setActivationCod(UUID.randomUUID().toString())
+        user.setPassword(passwordEncoder.encode(user.password))
         userRepository.save(user)
 
         sendEmail(user)
@@ -99,7 +105,7 @@ class UserService : UserDetailsService {
         }
 
         if (password.isNotEmpty()) {
-            user.password = password
+            user.setPassword(password)
         }
         userRepository.save(user)
     }

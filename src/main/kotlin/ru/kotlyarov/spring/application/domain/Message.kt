@@ -1,15 +1,21 @@
 package ru.kotlyarov.spring.application.domain
 
+import org.hibernate.validator.constraints.Length
 import javax.persistence.*
+import javax.validation.constraints.NotBlank
 
 @Entity
-data class Message(
-        var text: String?,
-        var tag: String?,
+class Message(
+        @field:NotBlank(message = "Please fill the message")
+        @Length(max = 2048, message = "The message to long")
+        var text: String,
+        @field:NotBlank(message = "Please fill the tag")
+        @Length(max = 255, message = "The tag to long")
+        var tag: String,
         @ManyToOne(fetch = FetchType.EAGER)
         @JoinColumn(name = "user_id")
-        var user: User?
-) {
+        var user: User?) {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private var id: Long = 0
