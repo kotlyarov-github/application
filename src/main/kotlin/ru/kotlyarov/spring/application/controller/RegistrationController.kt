@@ -7,6 +7,7 @@ import org.springframework.validation.BindingResult
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestParam
 import ru.kotlyarov.spring.application.domain.User
 import ru.kotlyarov.spring.application.service.UserService
 import javax.validation.Valid
@@ -23,12 +24,20 @@ class RegistrationController() {
     }
 
     @PostMapping("/registration")
-    fun addUser(@Valid user: User, bindingResult: BindingResult, map: Model): String {
-        if (user.password != null && user.password != user.getPassword2()) {
+    fun addUser(@RequestParam("password2") passwordConfirm: String,
+                @Valid user: User,
+                bindingResult: BindingResult,
+                map: Model): String {
+        val isConfirmEmpty = passwordConfirm.isEmpty()
+        if (isConfirmEmpty) {
+            map.addAttribute("password2Error", "Password confirmation cant be empty")
+        }
+
+        if (user.password != null && user.password != passwordConfirm) {
             map.addAttribute("passwordError", "Passwords are different")
         }
 
-        if (bindingResult.hasErrors()) {
+        if (isConfirmEmpty || bindingResult.hasErrors()) {
             val errors = ControllerUtils.getErrors(bindingResult)
             map.mergeAttributes(errors)
             return "registration"
@@ -46,8 +55,10 @@ class RegistrationController() {
         val isActivated = userService.activateUser(code)
 
         if (isActivated) {
+            map.addAttribute("messageType", "success")
             map.addAttribute("message", "User successfully activated")
         } else {
+            map.addAttribute("messageType", "danger")
             map.addAttribute("message", "Activation code isn't found")
         }
         return "login"

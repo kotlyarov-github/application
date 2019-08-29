@@ -22,10 +22,6 @@ class User(
         password = value
     }
 
-    @Transient
-    @NotBlank(message = "Password confirmation cannot be empty")
-    private var password2: String? = null
-
     @Email(message = "Email is not correct")
     @NotBlank(message = "Email cannot be empty")
     private var email: String? = null
@@ -87,14 +83,6 @@ class User(
 
     override fun isAccountNonLocked(): Boolean {
         return true
-    }
-
-    fun getPassword2(): String? {
-        return password2
-    }
-
-    fun setPassword2(value: String) {
-        password2 = value
     }
 
     @ElementCollection(targetClass = Role::class, fetch = FetchType.EAGER)
