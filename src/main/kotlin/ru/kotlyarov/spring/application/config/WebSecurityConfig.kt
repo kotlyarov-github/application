@@ -31,7 +31,8 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
         http
                 .authorizeRequests()
                 .antMatchers("/", "/registration", "/static/**", "/activate/*").permitAll()
-                .anyRequest().authenticated()
+                .anyRequest()
+                .authenticated()
                 .and()
                 .formLogin()
                 .loginPage("/login")
@@ -39,6 +40,8 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
                 .and()
                 .logout()
                 .permitAll()
+                .and()
+                .rememberMe()
     }
 
     override fun configure(auth: AuthenticationManagerBuilder) {

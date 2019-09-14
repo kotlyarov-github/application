@@ -14,7 +14,7 @@ class Message(
         var tag: String,
         @ManyToOne(fetch = FetchType.EAGER)
         @JoinColumn(name = "user_id")
-        var user: User?) {
+        var author: User?) {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -38,10 +38,10 @@ class Message(
     }
 
     fun getAuthorName(): String {
-        return if (user == null) {
+        return if (author == null) {
             "<none>"
         } else {
-            user!!.username
+            author!!.username
         }
     }
 }

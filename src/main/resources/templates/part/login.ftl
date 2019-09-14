@@ -51,6 +51,14 @@
                     </#if>
                 </div>
             </div>
+            <div class="col-sm-5">
+                <div class="g-recaptcha" data-sitekey="6LdTlbYUAAAAAJdmIp-tzVg35kian1PUGfZJ4N_P"></div>
+                <#if captchaError??>
+                    <div class="alert alert-danger" role="alert">
+                        ${captchaError}
+                    </div>
+                </#if>
+            </div>
         </#if>
         <#if !isRegisterForm>
             <a href="/registration">Registration</a>

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.validation.BindingResult
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.multipart.MultipartFile
@@ -52,23 +53,14 @@ class MainController() {
             map: Model,
             @RequestParam("file") file: MultipartFile): String {
 
-        message.user = user
+        message.author = user
 
         if (bindingResult.hasErrors()) {
             val errorMap = ControllerUtils.getErrors(bindingResult)
             map.mergeAttributes(errorMap)
             map.addAttribute("message", message)
         } else {
-            if (file.originalFilename!!.isNotEmpty()) {
-                val uploadDir = File(uploadPath)
-                if (!uploadDir.exists()) {
-                    uploadDir.mkdir()
-                }
-                val uuidName = UUID.randomUUID().toString()
-                val filename = "${uuidName}_${file.originalFilename}"
-                file.transferTo(File("/$uploadDir/$filename"))
-                message.setFilename(filename)
-            }
+            saveFile(file, message)
             messageRepository.save(message)
         }
 
@@ -79,6 +71,18 @@ class MainController() {
         return "main"
     }
 
+    private fun saveFile(file: MultipartFile, message: Message) {
+        if (file.originalFilename!!.isNotEmpty()) {
+            val uploadDir = File(uploadPath)
+            if (!uploadDir.exists()) {
+                uploadDir.mkdir()
+            }
+            val uuidName = UUID.randomUUID().toString()
+            val filename = "${uuidName}_${file.originalFilename}"
+            file.transferTo(File("/$uploadDir/$filename"))
+            message.setFilename(filename)
+        }
+    }
 
     @PostMapping("/filter")
     fun find(@RequestParam filter: String, map: Model): String {
@@ -90,5 +94,39 @@ class MainController() {
         }
         map.addAttribute("messages", listMessages)
         return "main"
+    }
+
+    @GetMapping("/user-messages/{user}")
+    fun userMessages(@AuthenticationPrincipal currentUser: User,
+                     @PathVariable user: User,
+                     @RequestParam(required = false) message: Message?,
+                     model: Model): String {
+        val messages = user.getMessages()
+        model.addAttribute("messages", messages)
+        model.addAttribute("message", message)
+        model.addAttribute("isCurrentUser", currentUser == user)
+        return "userMessages"
+    }
+
+    @PostMapping("/user-messages/{user}")
+    fun updateMessage(@AuthenticationPrincipal currentUser: User,
+                      @PathVariable user: User,
+                      @RequestParam("id") message: Message,
+                      @RequestParam("text") text: String,
+                      @RequestParam("tag") tag: String,
+                      @RequestParam("file") file: MultipartFile): String {
+
+        if (message.author == currentUser) {
+            if (text.isNotEmpty()) {
+                message.text = text
+            }
+            if (tag.isNotEmpty()) {
+                message.tag = tag
+            }
+        }
+        saveFile(file, message)
+        messageRepository.save(message)
+
+        return "redirect:/user-messages/${user.id}"
     }
 }

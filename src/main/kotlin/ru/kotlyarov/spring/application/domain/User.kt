@@ -18,13 +18,27 @@ class User(
         @GeneratedValue(strategy = GenerationType.AUTO)
         var id: Long = 0) : UserDetails {
 
-    fun setPassword(value: String) {
-        password = value
-    }
+    @OneToMany(mappedBy = "author", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    private lateinit var messages: Set<Message>
+
+    @ElementCollection(targetClass = Role::class, fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_role", joinColumns = [JoinColumn(name = "user_id")])
+    @Enumerated(EnumType.STRING)
+    var roles: MutableSet<Role?>? = null
 
     @Email(message = "Email is not correct")
     @NotBlank(message = "Email cannot be empty")
     private var email: String? = null
+    private var activationCode: String? = null
+
+
+    fun getMessages(): Set<Message> {
+        return messages
+    }
+
+    fun setMessages(messages: Set<Message>) {
+        this.messages = messages
+    }
 
     fun getEmail(): String? {
         return email
@@ -34,7 +48,9 @@ class User(
         email = value
     }
 
-    private var activationCode: String? = null
+    fun setPassword(value: String) {
+        password = value
+    }
 
     fun getActivationCod(): String? {
         return activationCode
@@ -85,8 +101,18 @@ class User(
         return true
     }
 
-    @ElementCollection(targetClass = Role::class, fetch = FetchType.EAGER)
-    @CollectionTable(name = "user_role", joinColumns = [JoinColumn(name = "user_id")])
-    @Enumerated(EnumType.STRING)
-    var roles: MutableSet<Role?>? = null
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as User
+
+        if (id != other.id) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return id.hashCode()
+    }
 }
