@@ -26,11 +26,43 @@ class User(
     @Enumerated(EnumType.STRING)
     var roles: MutableSet<Role?>? = null
 
+    @ManyToMany
+    @JoinTable(
+            name = "user_subscriptions",
+            joinColumns = [JoinColumn(name = "channel_id")],
+            inverseJoinColumns = [JoinColumn(name = "subscriber_id")]
+    )
+    private lateinit var subscribers: Set<User>
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_subscriptions",
+            joinColumns = [JoinColumn(name = "subscriber_id")],
+            inverseJoinColumns = [JoinColumn(name = "channel_id")]
+    )
+    private lateinit var subscriptions: Set<User>
+
     @Email(message = "Email is not correct")
     @NotBlank(message = "Email cannot be empty")
     private var email: String? = null
     private var activationCode: String? = null
 
+    fun getSubscribers(): Set<User> {
+        return subscribers
+    }
+
+    fun setSubscribers(subscribers: Set<User>) {
+        this.subscribers = subscribers
+    }
+
+
+    fun getSubscriptions(): Set<User> {
+        return subscriptions
+    }
+
+    fun setSubscriptions(subscriptions: Set<User>) {
+        this.subscriptions = subscriptions
+    }
 
     fun getMessages(): Set<Message> {
         return messages

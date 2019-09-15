@@ -10,6 +10,7 @@ import ru.kotlyarov.spring.application.domain.Role
 import ru.kotlyarov.spring.application.domain.User
 import ru.kotlyarov.spring.application.service.UserService
 
+
 @Controller
 @RequestMapping("/user")
 class UserController {
@@ -74,5 +75,38 @@ class UserController {
     ): String {
         userService.updateProfile(user, password, email)
         return "redirect:/user/profile"
+    }
+
+    @GetMapping("subscribe/{user}")
+    fun subscribe(@AuthenticationPrincipal currentUser: User,
+                  @PathVariable user: User): String {
+        userService.subscribe(currentUser, user)
+        return "redirect:/user-messages/${user.id}"
+    }
+
+    @GetMapping("unsubscribe/{user}")
+    fun unsubscribe(@AuthenticationPrincipal currentUser: User,
+                    @PathVariable user: User): String {
+        userService.unsubscribe(currentUser, user)
+        return "redirect:/user-messages/${user.id}"
+    }
+
+
+    @GetMapping("{type}/{user}/list")
+    fun userList(
+            model: Model,
+            @PathVariable user: User,
+            @PathVariable type: String
+    ): String {
+        model.addAttribute("userChannel", user)
+        model.addAttribute("type", type)
+
+        if ("subscriptions" == type) {
+            model.addAttribute("users", user.getSubscriptions())
+        } else {
+            model.addAttribute("users", user.getSubscribers())
+        }
+
+        return "subscriptions"
     }
 }

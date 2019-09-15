@@ -110,4 +110,15 @@ class UserService : UserDetailsService {
         userRepository.save(user)
     }
 
+    fun subscribe(currentUser: User, user: User) {
+        user.setSubscribers(user.getSubscribers().plusElement(currentUser))
+        userRepository.save(user)
+    }
+
+    fun unsubscribe(currentUser: User, user: User) {
+        user.setSubscribers(user.getSubscribers().minusElement(currentUser))
+        userRepository.save(user)
+    }
+
+
 }
