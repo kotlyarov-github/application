@@ -1,10 +1,10 @@
 <#include "security.ftl">
 
-<div class="card-columns" xmlns="http://www.w3.org/1999/html">
+<div class="card-columns" id="message-list" xmlns="http://www.w3.org/1999/html">
     <#list messages as message>
-        <div class="card my-3" style="width: 15rem;">
+        <div class="card my-3" data-id="${message.id}" style="width: 15rem;">
             <#if message.filename?exists>
-                <img class="card-img-top" src="/img/${message.filename}">
+                <img class="card-img-top" src="/img/${message.filename}"/>
             </#if>
             <div class="m-2">
                 <span>${message.text}</span><br/>
